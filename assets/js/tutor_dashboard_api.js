@@ -7,6 +7,11 @@ const ApiService = {
     /**
      * Update session details
      * @param {Object} payload - The session data to update
+     * @param {string} payload.id - The ID of the session
+     * @param {string} payload.date - The new date (DD/MM/YYYY)
+     * @param {string} payload.time - The new time (HH:MM)
+     * @param {boolean} payload.isOnline - Whether the session is online
+     * @param {string} payload.location - The meeting link or room name
      * @returns {Promise}
      */
     updateSession: async function(payload) {
