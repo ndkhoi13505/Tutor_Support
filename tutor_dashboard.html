@@ -8,12 +8,156 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/tutor.css"> </head>
 <body>
-    <div class="container mt-5">
-        <h1>Lịch Dạy Của Tôi</h1>
-        <div id="schedule-table"></div>
+    <div class="dashboard-wrapper">
+        <!-- Header -->
+        <header class="header-section">
+            <div class="header-content">
+                <div class="hamburger-icon">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                </div>
+                <h1 class="page-title">Quản lý buổi hỗ trợ</h1>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <div class="search-input-box">
+                    <span class="search-icon">
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.5 14.5L10.5 10.5M6.5 12.5C3.18629 12.5 0.5 9.81371 0.5 6.5C0.5 3.18629 3.18629 0.5 6.5 0.5C9.81371 0.5 12.5 3.18629 12.5 6.5C12.5 9.81371 9.81371 12.5 6.5 12.5Z" stroke="#9CA3AF"/>
+                        </svg>
+                    </span>
+                    <input type="text" placeholder="Tìm theo ngày" id="searchInput" name="searchDate">
+                    <span class="date-hint">DD/MM/YYYY</span>
+                    <span class="calendar-icon">
+                        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.66667 1.33333V2.66667H9.33333V1.33333H10.6667V2.66667H12.6667C13.0203 2.66667 13.3594 2.80714 13.6095 3.05719C13.8595 3.30724 14 3.64638 14 4V14.6667C14 15.0203 13.8595 15.3594 13.6095 15.6095C13.3594 15.8595 13.0203 16 12.6667 16H1.33333C0.979711 16 0.640573 15.8595 0.390524 15.6095C0.140476 15.3594 0 15.0203 0 14.6667V4C0 3.64638 0.140476 3.30724 0.390524 3.05719C0.640573 2.80714 0.979711 2.66667 1.33333 2.66667H3.33333V1.33333H4.66667ZM1.33333 5.33333V14.6667H12.6667V5.33333H1.33333Z" fill="#9CA3AF"/>
+                        </svg>
+                    </span>
+                </div>
+                <button class="btn-search" onclick="searchSessions()">Tìm kiếm</button>
+            </div>
+        </section>
+
+        <!-- Table Section -->
+        <section class="table-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="col col-subject">Môn học</div>
+                    <div class="col col-date">Ngày</div>
+                    <div class="col col-time">Giờ</div>
+                    <div class="col col-room">Phòng học</div>
+                    <div class="col col-type">Hình thức</div>
+                    <div class="col col-action"></div>
+                </div>
+                
+                <!-- Rows will be loaded dynamically via JS -->
+                <div class="text-center py-5" id="loading-message">Loading data...</div>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <section class="pagination-section">
+            <div class="pagination-bar">
+                <button class="page-nav prev" onclick="changePage('prev')">
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 9L1 5L5 1" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Prev
+                </button>
+                <button class="page-num active" onclick="changePage(1)">1</button>
+                <button class="page-nav next" onclick="changePage('next')">
+                    Next
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 9L5 5L1 1" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModalOverlay" class="modal-overlay d-none" style="background: none; pointer-events: none;">
+        <!-- We use pointer-events: auto on the panel so clicks pass through the overlay but catch on the panel -->
+        <div class="edit-modal-panel" style="pointer-events: auto;">
+            <div class="modal-header">
+                <button class="icon-btn close-btn" onclick="closeEditModal()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 5L5 15M5 5L15 15" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h3 class="modal-title">Lưu thay đổi?</h3>
+                <button class="icon-btn save-btn" onclick="saveChanges()">
+                    <div class="green-checkbox">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 3L4.5 8.5L2 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="input-label-inside">Thay đổi ngày</span>
+                        <input type="text" class="input-with-label" placeholder="DD/MM/YYYY" id="editDate" name="date">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 2V6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 2V6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 10H21" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group time-container">
+                    <label>Thay đổi thời gian</label>
+                    <div class="time-group">
+                        <input type="text" value="18" class="time-box" id="editHour" name="hour">
+                        <span class="colon">:</span>
+                        <input type="text" value="00" class="time-box" id="editMinute" name="minute">
+                    </div>
+                </div>
+                <div class="form-group row-group">
+                    <label class="label-online">Học Online?</label>
+                    <label class="switch">
+                        <input type="checkbox" id="onlineSwitch" checked onchange="toggleRoomInput()" name="isOnline">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <div class="input-wrapper" id="roomInputWrapper">
+                        <input type="text" placeholder="Nhập link tham gia" class="input-room" id="roomInput" name="location">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay d-none">
+        <div class="success-popup">
+            <button class="close-popup-btn" onclick="closeSuccessModal()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 5L5 15M5 5L15 15" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <h3 class="success-title">Thay đổi thành công</h3>
+            <div class="success-info">
+                <p>Môn học: <span class="info-value" id="successSubject">MT1003 - Giải tích 1</span></p>
+                <p>Ngày: <span class="info-value" id="successDate">6/9/2025</span></p>
+                <p>Thời gian: <span class="info-value" id="successTime">18:00</span></p>
+                <p>Hình thức: <span class="info-value" id="successType">Online</span></p>
+            </div>
+            <button class="btn-return" id="btnReturn" onclick="closeSuccessModal()">Quay về (5s)</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/tutor_dashboard_api.js"></script>
+    <script src="assets/js/tutor_dashboard.js"></script>
 </body>
 </html>
