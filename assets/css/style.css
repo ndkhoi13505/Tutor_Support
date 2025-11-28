@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+:root {
+    /* Bảng màu chính */
+    --primary-blue: #3B82F6;       /* Xanh dương chủ đạo */
+    --primary-hover: #2563EB;      /* Xanh khi di chuột */
+    --pink-btn: #D77BC6;           /* Hồng (nút phụ/edit) */
+    --pink-hover: #C069B0;
+    --success-green: #10B981;      /* Xanh lá thành công */
+    
+    /* Màu nền & Chữ */
+    --bg-body: #EFF6FF;            /* Nền xanh nhạt toàn web */
+    --white: #FFFFFF;
+    --text-dark: #1F2937;          /* Chữ chính */
+    --text-gray: #6B7280;          /* Chữ phụ */
+    --border-color: #E5E7EB;       /* Viền xám nhạt */
+}
+
+/* =========================================
+   RESET & BASE STYLES
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-size: 16px;
+}
+
+/* Class ẩn hiện tiện dụng */
+.d-none {
+    display: none !important;
+}
+
+/* =========================================
+   COMMON COMPONENTS (Dùng chung cho Login, Student...)
+   ========================================= */
+
+/* Nút bấm chuẩn (Màu xanh) */
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Ô nhập liệu chuẩn */
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    background-color: var(--white);
+    color: var(--text-dark);
+}
+
+.form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}

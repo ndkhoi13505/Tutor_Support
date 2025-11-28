@@ -1,0 +1,90 @@
+/* =========================================
+   LOGIN PAGE STYLES
+   ========================================= */
+
+/* Căn giữa Form Login ra giữa màn hình */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Cái thẻ Card chứa form */
+.login-card {
+    background-color: var(--white);
+    width: 100%;
+    max-width: 450px; /* Độ rộng tối đa */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+/* Logo Bách Khoa */
+.login-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Tiêu đề */
+.login-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-blue); /* Dùng màu xanh chủ đạo */
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    font-size: 14px;
+    color: var(--text-gray);
+    margin-bottom: 32px;
+}
+
+/* Nhóm các ô nhập liệu */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+/* Nút Đăng nhập to */
+.btn-login-full {
+    width: 100%;
+    height: 48px;
+    font-size: 16px;
+    margin-top: 10px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-login-full:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Link quên mật khẩu */
+.forgot-password {
+    display: block;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
