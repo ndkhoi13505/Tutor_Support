@@ -10,32 +10,57 @@
 </head>
 <body class="bg-light">
 
-    <div style="position: relative; width: 1440px; margin: 0 auto;">
+    <div style="position: relative; width: 100%; max-width: 1440px; margin: 0 auto;">
         
-        <img src="assets/images/bg-login.png" style="width: 100%;">
+        <img src="assets/images/admin_login.png" style="width: 100%; display: block;">
 
+        <div class="login-card-overlay" style="
+            position: absolute;
+            top: 220px;       
+            right: 130px;     
+            width: 400px;     
+            background: white; 
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            /* Căn giữa nội dung nếu form ngắn */
+            min-height: 250px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        ">
+            
+            <div class="text-center mb-4">
+                <img src="assets/images/bk_logo.png" width="90">
+            </div>
 
-        <button id="admin" 
-                style="position: absolute; 
-                       top: 550px; 
-                       left: 950px; 
-                       width: 400px; height: 45px;
-                       opacity: 0; /* Tàng hình luôn */
-                       cursor: pointer;">
-        </button>
-<button id="hcmut-account"
-        onclick="window.location.href='sso.html'" 
-        style="position: absolute; 
-               top: 495px;      
-               left: 950px;    
-               width: 400px;    
-               height: 50px;
-               opacity: 0;    /* Để 0.5 cho dễ nhìn */
-               background-color: blue; /* Màu xanh để phân biệt */
-               cursor: pointer;">
-</button>
+            <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 25px;">
+
+            <p class="mb-4" style="color: #4170B7; font-size: 19px; font-weight: 400; margin-top: -10px;">
+                Log in using your account on:
+            </p>
+
+            <button class="btn w-100 mb-3 d-flex align-items-center justify-content-center" 
+                    id="btn-gateway-sso"
+                    onclick="window.location.href='sso.html'"
+                    style="border: 1px solid #e5e7eb; background: white; height: 50px; padding: 0; cursor: pointer; transition: 0.2s;">
+                
+                <img src="assets/images/bk_logo.png" width="24" style="margin-right: 12px;">
+                
+                <span style="font-size: 15px; color: #555; font-weight: 500;">
+                    Tài khoản HCMUT (HCMUT account)
+                </span>
+            </button>
+            
+            <button class="btn w-100" 
+                    id="btn-gateway-admin"
+                    onclick="window.location.href='adminlogin.html'"
+                    style="border: 1px solid #e5e7eb; background: white; height: 50px; font-size: 15px; color: #666; font-weight: 500; cursor: pointer; transition: 0.2s;">
+                Admin
+            </button>
+
+        </div>
     </div>
 
-    <script src="assets/js/script.js"></script>
 </body>
 </html>
