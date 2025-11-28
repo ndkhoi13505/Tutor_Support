@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCMUT - DỊCH VỤ XÁC THỰC TẬP TRUNG</title>
+    <style>
+        /* --- BODY --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Helvetica, Arial,sans-serif;
+            background-color: #f4f4f4;
+            font-size: 13px;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background-color: #210F7A;
+            color: white;
+            padding: 15px 0;
+            border-bottom: 5px solid #ddd;
+        }
+
+        .header-content {
+            width: 80%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-content img {
+            height: 50px;
+        }
+
+        .header-content h1 {
+            font-size: 26px;
+            text-transform: uppercase;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        /* --- CONTAINER --- */
+        .main-container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        /* --- LEFT COLUMN */
+        .left-col {
+            width: 28%;
+            background-color: #eee;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .left-col h3 {
+            color: #990033;
+            margin-top: 0;
+            font-size: 18.2px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #777777;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 95%;
+            padding: 5px;
+            border: 1px solid #DDDDDD;
+            background-color: #e8f0fe;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn {
+            padding: 6px 15px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 13px;
+            border-radius: 3px;
+        }
+
+        .btn-login { background-color: #006DCC; } 
+        .btn-clear { background-color: #006DCC; }
+
+        .btn:hover { opacity: 0.9; }
+
+        .forgot-pass {
+            display: block;
+            margin-top: 15px;
+            color: #0000EE;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* --- RIGHT COLUMN */
+        .right-col {
+            width: 72%;
+            line-height: 1.6;
+        }
+
+        .right-col h4 {
+            color: #990033;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 18.72px;
+        }
+
+        .lang-link { color: #0000EE; text-decoration: underline; margin-right: 10px;}
+        
+        /* --- ERROR MESSAGE --- */
+        .error-box {
+            display: none;
+            background-color: #ffeedd;
+            border: 2px dotted #BB0000;
+            color: #BB0000;
+            padding: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .error-box img {
+            width: 32px; 
+            height: 32px;
+            margin-right: 15px; 
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            width: 80%;
+            margin: 20px auto;
+            color: #999999;
+            font-size: 13px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .jasig-text {
+            color: #0000EE;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="assets/images/bk_logo.png" alt="Logo BK">
+            <h1>Dịch vụ xác thực tập trung</h1>
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="left-col">
+            <div id="error-message" class="error-box">
+            <img src="assets/images/error.gif" alt="Warning Icon">
+            
+            <span>Các thông tin mà bạn cung cấp không đúng.</span>
+        </div>
+
+            <h3>Nhập thông tin tài khoản của bạn</h3>
+
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+
+            <div class="form-group">
+                <label>Tên tài khoản</label>
+                <input type="text" id="username" value="">
+            </div>
+
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" placeholder="">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" style="margin-right: 5px;"> 
+                Cảnh báo trước khi tôi đăng nhập vào các trang web khác.
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+
+            <div class="btn-row">
+                <button class="btn btn-login" onclick="checkLogin()">Đăng nhập</button>
+                <button class="btn btn-clear" onclick="deleteContent()">Xóa</button>
+            </div>
+
+            <a href="#" class="forgot-pass">Thay đổi mật khẩu?</a>
+        </div>
+
+        <div class="right-col">
+            <h4>Ngôn ngữ</h4>
+            <p>
+                <a href="#" class="lang-link">Tiếng Việt</a>|
+                <a href="#" class="lang-link">Tiếng Anh</a>
+            </p>
+
+            <h4>Lưu ý</h4>
+            <p>Trang đăng nhập này cho phép đăng nhập một lần đến nhiều hệ thống web ở Trường Đại học Bách Khoa-ĐHQG-HCM. Điều này có nghĩa là bạn chỉ đăng nhập một lần cho những hệ thống web đã đăng ký với hệ thống xác thực quản lý truy cập tập trung.</p>
+            <p>Bạn cần dùng tài khoản HCMUT để đăng nhập. Tài khoản HCMUT cho phép truy cập đến nhiều tài nguyên bao gồm hệ thống thông tin, thư điện tử, ...</p>
+            <p>Vì lý do an ninh, bạn hãy Thoát khỏi trình duyệt Web khi bạn kết thúc việc truy cập các dịch vụ đòi hỏi xác thực!</p>
+
+            <h4>Hỗ trợ kỹ thuật</h4>
+            <p>E-mail: <a href="mailto:support@hcmut.edu.vn" style="color:#0000EE">support@hcmut.edu.vn</a> | ĐT: (84-8) 38647256 - 7204</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Bản quyền © 2011 - 2012 Trường Đại học Bách khoa - ĐHQG-HCM.<br>
+        Được hỗ trợ bởi <span class="jasig-text">Jasig CAS 3.5.1</span>
+    </div>
+
+    <script src="assets/js/account.js"></script>
+
+</body>
+</html>
