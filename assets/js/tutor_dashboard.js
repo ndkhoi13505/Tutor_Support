@@ -1,7 +1,11 @@
+//for backend read tutor_dashboard_api
+
+
 let currentSessionId = null;
 let successModalTimer = null;
 
-// Load sessions when page loads
+
+
 document.addEventListener('DOMContentLoaded', () => {
     loadSessions();
 });
@@ -17,7 +21,6 @@ async function loadSessions() {
 
 function renderSessions(sessions) {
     const container = document.querySelector('.table-container');
-    // Keep header, remove existing rows
     const header = container.querySelector('.table-header');
     container.innerHTML = '';
     container.appendChild(header);
@@ -55,14 +58,14 @@ function openEditModal(button) {
     if (row) {
         row.style.backgroundColor = '#F3F4F6';
         
-        // Get data from row
+        
         currentSessionId = row.dataset.id;
         const date = row.dataset.date;
         const time = row.dataset.time;
         const isOnline = row.dataset.online === 'true';
         const roomOrLink = isOnline ? row.dataset.link : row.dataset.room;
 
-        // Populate Modal Inputs
+        
         document.getElementById('editDate').value = date;
         
         const [hour, minute] = time.split(':');
@@ -72,8 +75,8 @@ function openEditModal(button) {
         const onlineSwitch = document.getElementById('onlineSwitch');
         onlineSwitch.checked = isOnline;
         
-        // Trigger toggle logic to set correct placeholder/state
-        toggleRoomInput(false); // false = don't clear value
+    
+        toggleRoomInput(false); 
         
         const roomInput = document.getElementById('roomInput');
         roomInput.value = roomOrLink || "";
@@ -92,14 +95,12 @@ function closeEditModal() {
 }
 
 async function saveChanges() {
-    // Collect Data
     const date = document.getElementById('editDate').value;
     const hour = document.getElementById('editHour').value;
     const minute = document.getElementById('editMinute').value;
     const isOnline = document.getElementById('onlineSwitch').checked;
     const roomOrLink = document.getElementById('roomInput').value;
 
-    // Validation
     if (!date) {
         alert("Vui lòng nhập ngày.");
         return;
@@ -112,7 +113,6 @@ async function saveChanges() {
         return;
     }
 
-    // Date Logic Validation
     const [_, day, month, year] = date.match(dateRegex);
     const dateObj = new Date(`${year}-${month}-${day}`);
     if (
@@ -145,14 +145,10 @@ async function saveChanges() {
         location: roomOrLink
     };
 
-    // Call API
     try {
         await ApiService.updateSession(payload);
-        
-        // Update UI immediately (Frontend Simulation)
         const row = document.querySelector(`.table-row[data-id="${currentSessionId}"]`);
         if (row) {
-            // Update Dataset
             row.dataset.date = date;
             row.dataset.time = `${hour}:${minute}`;
             row.dataset.online = isOnline;
@@ -162,7 +158,6 @@ async function saveChanges() {
                 row.dataset.room = roomOrLink;
             }
 
-            // Update Table Display
             row.querySelector('.col-date').textContent = date;
             row.querySelector('.col-time').textContent = `${hour}:${minute}`;
             
@@ -174,7 +169,6 @@ async function saveChanges() {
                 row.querySelector('.col-type').textContent = "Offline";
             }
 
-            // Update Success Modal Info
             document.getElementById('successSubject').textContent = row.dataset.subject;
             document.getElementById('successDate').textContent = date;
             document.getElementById('successTime').textContent = `${hour}:${minute}`;
@@ -184,7 +178,6 @@ async function saveChanges() {
         closeEditModal();
         document.getElementById('successModal').classList.remove('d-none');
         
-        // Start 5s countdown
         let timeLeft = 5;
         const btnReturn = document.getElementById('btnReturn');
         btnReturn.textContent = `Quay về (${timeLeft}s)`;
