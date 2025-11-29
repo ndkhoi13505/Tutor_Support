@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm Tutor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/student.css">
+    <style>
+        /* Badge điểm AI */
+        .score-badge { padding: 4px 8px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+        .score-high { background-color: #DCFCE7; color: #166534; }
+        .score-med { background-color: #FEF9C3; color: #854D0E; }
+    </style>
+</head>
+<body>
+
+    <div class="student-wrapper">
+        <header class="page-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+            <h1 class="page-title">Tìm kiếm & Ghép cặp Tutor</h1>
+        </header>
+
+        <div class="filter-bar">
+            <div style="font-weight: 500;">Môn học:</div>
+            
+            <div class="search-group">
+                <div id="selectedTags" style="display: flex; gap: 5px;"></div>
+                <input type="text" class="search-input" id="subjectInput" placeholder="Nhập tên hoặc mã môn..." autocomplete="off">
+                <div id="suggestionsBox" class="autocomplete-suggestions"></div>
+            </div>
+            
+            <div class="filter-options">
+                <div onclick="openSchedule()" style="cursor: pointer; display: flex; align-items: center;">
+                    Chọn lịch rảnh: 
+                    <span style="margin-left:5px;">📅</span>
+                    <span id="displaySchedule" style="font-weight: 600; color: #3B82F6; margin-left: 5px; font-size: 13px;">Chưa chọn</span>
+                </div>
+
+                <div style="border-left: 1px solid #E5E7EB; height: 20px; margin: 0 10px;"></div>
+
+                <div>Hình thức: 
+                    <input type="radio" name="mode" id="all" value="all" checked style="margin-left: 5px;"> <label for="all">Tất cả</label>
+                    <input type="radio" name="mode" id="offline" value="Offline" style="margin-left: 5px;"> <label for="offline">Offline</label>
+                    <input type="radio" name="mode" id="online" value="Online" style="margin-left: 5px;"> <label for="online">Online</label>
+                </div>
+            </div>
+
+            <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
+        </div>
+
+        <div id="emptyState" class="empty-state-container">
+            <div class="empty-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <h3 class="empty-title">Bắt đầu tìm kiếm Tutor phù hợp</h3>
+            <p class="empty-desc">
+                Chọn môn học, lịch rảnh trong tuần và hình thức học. Hệ thống AI sẽ phân tích và kết nối bạn với Tutor phù hợp nhất.
+            </p>
+            <div class="quick-tags-container">
+                <button class="chip-btn" onclick="quickSelect('MT1003', 'Giải tích 1')">Giải tích 1</button>
+                <button class="chip-btn" onclick="quickSelect('PH1003', 'Vật lý 1')">Vật lý 1</button>
+                <button class="chip-btn" onclick="quickSelect('CO2003', 'Cấu trúc dữ liệu')">Cấu trúc dữ liệu</button>
+                <button class="chip-btn" onclick="quickSelect('CO3093', 'Mạng máy tính')">Mạng máy tính</button>
+            </div>
+        </div>
+
+        <div id="resultSection" class="tutor-table-container d-none">
+            <table class="tutor-table">
+                <thead>
+                    <tr>
+                        <th>Tên Tutor</th>
+                        <th>Độ phù hợp (AI)</th>
+                        <th>Số buổi dạy</th>
+                        <th>Đánh giá</th>
+                        <th>Chi tiết</th>
+                        <th>Yêu cầu</th>
+                    </tr>
+                </thead>
+                <tbody id="tutor-list-body"></tbody>
+            </table>
+            <div class="pagination-container" id="pagination"></div>
+        </div>
+    </div>
+
+    <div id="scheduleModal" class="modal-overlay d-none">
+        <div class="modal-box" style="width: 600px;">
+            <div class="schedule-modal-content">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <h3 style="font-size: 18px; font-weight: 700;">Chọn lịch rảnh trong tuần</h3>
+                    <div class="close-icon" style="position: static;" onclick="closeModal('scheduleModal')">X</div>
+                </div>
+                <div class="schedule-summary" id="scheduleTextDetail">Vui lòng chọn các buổi bạn rảnh:</div>
+                <div class="schedule-grid">
+                    <div></div> 
+                    <div class="schedule-header">Thứ 2</div> <div class="schedule-header">Thứ 3</div> <div class="schedule-header">Thứ 4</div>
+                    <div class="schedule-header">Thứ 5</div> <div class="schedule-header">Thứ 6</div> <div class="schedule-header">Thứ 7</div> <div class="schedule-header">CN</div>
+
+                    <div class="schedule-row-label">Sáng</div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T2-S')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T3-S')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T4-S')"></div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T5-S')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T6-S')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T7-S')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'CN-S')"></div>
+
+                    <div class="schedule-row-label">Chiều</div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T2-C')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T3-C')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T4-C')"></div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T5-C')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T6-C')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T7-C')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'CN-C')"></div>
+
+                    <div class="schedule-row-label">Tối</div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T2-T')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T3-T')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T4-T')"></div>
+                    <div class="schedule-cell" onclick="toggleCell(this, 'T5-T')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T6-T')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'T7-T')"></div> <div class="schedule-cell" onclick="toggleCell(this, 'CN-T')"></div>
+                </div>
+                <div class="btn-group" style="justify-content: flex-end;">
+                    <button class="btn-cancel" onclick="resetSchedule()" style="margin-right: auto; background: none; color: #EF4444; padding-left: 0;">Xóa hết</button>
+                    <button class="btn-cancel" style="background: #F3F4F6; color: #374151;" onclick="closeModal('scheduleModal')">Đóng</button>
+                    <button class="btn-confirm" onclick="saveSchedule()">Lưu lịch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay d-none">
+        <div class="modal-box confirm-modal">
+            <div class="close-icon" onclick="closeModal('confirmModal')">X</div>
+            <h3 class="modal-title">Xác nhận gửi yêu cầu</h3>
+            <p style="color: #6B7280; margin-bottom: 20px;">
+                Xác nhận gửi yêu cầu ghép cặp đến Tutor: <br>
+                <span class="text-blue" id="confirmTutorName">Nguyễn Văn A</span>
+            </p>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closeModal('confirmModal')">Hủy</button>
+                <button class="btn-confirm" onclick="submitRequest()">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal-overlay d-none">
+        <div class="modal-box success-modal">
+            <div class="close-icon" onclick="closeModal('successModal')">X</div>
+            <div class="text-success">Gửi yêu cầu thành công</div>
+            <p style="color: #6B7280;">
+                Đã gửi yêu cầu ghép cặp đến Tutor: <br>
+                <span class="text-blue" id="successTutorName">Nguyễn Văn A</span>
+            </p>
+            <button class="btn-return" id="btnReturn" onclick="closeModal('successModal')">Quay về (5s)</button>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal-overlay d-none">
+        <div class="modal-box" style="width: 600px;">
+            <div class="close-icon" onclick="closeModal('profileModal')">X</div>
+            <div class="profile-modal">
+                <div class="profile-left">
+                    <img src="" id="profileAvatar" class="avatar-large">
+                    <span style="font-style: italic; font-size: 13px;">Ảnh đại diện</span>
+                </div>
+                <div class="profile-right">
+                    <h3>Hồ sơ Tutor</h3>
+                    <div class="profile-section">
+                        <span class="profile-label">1. Thông tin cá nhân</span>
+                        <div>Tên Tutor: <span class="text-blue" id="profileName">Nguyễn Văn A</span></div>
+                        <div>Công việc: <span class="text-blue" id="profileJob">Sinh viên năm 4 khoa KH&KTMT</span></div>
+                        <div>Đánh giá: <span style="color: #F59E0B;" id="profileRating">5 ⭐</span></div>
+                    </div>
+                    <div class="profile-section">
+                        <span class="profile-label">2. Chuyên môn</span>
+                        <div>Môn giảng dạy: <span class="text-blue" id="profileSubjects">Giải tích 1, Vật lý 1</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/student_api.js"></script>
+
+    <script>
+        // GLOBAL STATE
+        let selectedTutor = null;
+        let countdownTimer = null;
+        let allTutorsData = []; 
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 5;
+
+        // UI References
+        const emptyState = document.getElementById('emptyState');
+        const resultSection = document.getElementById('resultSection');
+        const subjectInput = document.getElementById('subjectInput');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+        const selectedTagsContainer = document.getElementById('selectedTags');
+        
+        let selectedSubjects = [];
+        let selectedSlots = []; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showEmptyState(true);
+        });
+
+        function showEmptyState(isShow) {
+            if (isShow) {
+                emptyState.classList.remove('d-none');
+                resultSection.classList.add('d-none');
+            } else {
+                emptyState.classList.add('d-none');
+                resultSection.classList.remove('d-none');
+            }
+        }
+
+        // SCHEDULE LOGIC
+        function openSchedule() { document.getElementById('scheduleModal').classList.remove('d-none'); }
+
+        function toggleCell(cell, key) {
+            cell.classList.toggle('selected');
+            if (selectedSlots.includes(key)) {
+                selectedSlots = selectedSlots.filter(s => s !== key);
+            } else {
+                selectedSlots.push(key);
+            }
+            const count = selectedSlots.length;
+            document.getElementById('scheduleTextDetail').textContent = count > 0 
+                ? `Đã chọn ${count} buổi rảnh.` : "Vui lòng chọn các buổi bạn rảnh:";
+        }
+
+        function saveSchedule() {
+            const count = selectedSlots.length;
+            const display = document.getElementById('displaySchedule');
+            if (count === 0) {
+                display.textContent = "Chưa chọn"; display.style.color = "#9CA3AF";
+            } else {
+                display.textContent = `Đã chọn ${count} buổi`; display.style.color = "#3B82F6";
+            }
+            closeModal('scheduleModal');
+        }
+
+        function resetSchedule() {
+            selectedSlots = [];
+            document.querySelectorAll('.schedule-cell').forEach(c => c.classList.remove('selected'));
+            document.getElementById('scheduleTextDetail').textContent = "Vui lòng chọn các buổi bạn rảnh:";
+            saveSchedule();
+        }
+
+        // SEARCH LOGIC 
+        function handleSearch() {
+            currentPage = 1;
+            showEmptyState(false);
+            fetchData();
+        }
+
+        window.quickSelect = function(code, name) {
+            addTag(code, name);
+        }
+
+        async function fetchData() {
+            const tbody = document.getElementById('tutor-list-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color: #6B7280;">⏳ Đang phân tích hồ sơ và tìm kiếm...</td></tr>';
+            
+            await new Promise(r => setTimeout(r, 800)); // Delay AI
+
+            let data = await StudentApiService.getTutors();
+            
+            // FILTER: SUBJECT
+            if (selectedSubjects.length > 0) {
+                data = data.filter(t => {
+                    return selectedSubjects.some(tag => t.subjects.includes(tag.code) || t.subjects.includes(tag.name));
+                });
+            }
+
+            // FILTER: MODE
+            const modeInput = document.querySelector('input[name="mode"]:checked');
+            if (modeInput) {
+                const mode = modeInput.value; 
+                if (mode !== 'all') {
+                    data = data.filter(t => t.teachingMode === 'Both' || t.teachingMode === mode);
+                }
+            }
+
+            // FILTER: SCHEDULE
+            if (selectedSlots.length > 0) {
+                data = data.filter(t => {
+                    // Nếu Tutor dạy buổi nào trùng với lịch SV chọn thì ok
+                    return selectedSlots.some(slot => t.schedule.includes(slot));
+                });
+            }
+
+            allTutorsData = data;
+            renderPage(currentPage);
+        }
+
+        function renderPage(page) {
+            currentPage = page;
+            const tbody = document.getElementById('tutor-list-body');
+            tbody.innerHTML = '';
+
+            const start = (page - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageData = allTutorsData.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">Không tìm thấy Tutor phù hợp với tiêu chí lọc.</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const requestedIds = JSON.parse(localStorage.getItem('tutor_requests') || '[]');
+
+            pageData.forEach(t => {
+                const ratingHtml = t.rating 
+                    ? `<span class="text-rating">⭐ ${t.rating}/5 (${t.reviews})</span>`
+                    : `-`;
+                
+                const scoreNum = parseFloat(t.score.split('/')[0]);
+                let scoreClass = scoreNum >= 9.5 ? 'score-high' : 'score-med';
+                
+                const isRequested = requestedIds.includes(t.id);
+                const btnClass = isRequested ? 'btn-disabled' : 'btn-request btn-pink';
+                const btnText = isRequested ? 'Đã gửi' : 'Gửi yêu cầu';
+                const onClick = isRequested ? '' : `onclick="openConfirm(${t.id})"`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 600;">${t.name}</div>
+                        <div style="font-size: 12px; color: #6B7280;">${t.teachingMode === 'Both' ? 'Online & Offline' : t.teachingMode}</div>
+                    </td>
+                    <td><span class="score-badge ${scoreClass}">${t.score}</span></td>
+                    <td>${t.sessions}</td>
+                    <td>${ratingHtml}</td>
+                    <td><span class="link-detail" onclick="openProfile(${t.id})">Hồ sơ</span></td>
+                    <td><button class="${btnClass}" ${onClick} id="btn-${t.id}">${btnText}</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(allTutorsData.length / ITEMS_PER_PAGE);
+            const paginationContainer = document.getElementById('pagination');
+            if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+
+            let html = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lt; Prev</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next &gt;</button>`;
+            paginationContainer.innerHTML = html;
+        }
+
+        window.changePage = function(newPage) { renderPage(newPage); }
+
+        // TAGS LOGIC
+        subjectInput.addEventListener('input', async (e) => {
+            const keyword = e.target.value;
+            if (keyword.length < 1) { suggestionsBox.style.display = 'none'; return; }
+            const results = await StudentApiService.searchSubjects(keyword);
+            if (results.length > 0) {
+                suggestionsBox.innerHTML = results.map(s => `
+                    <div class="suggestion-item" onclick="addTag('${s.code}', '${s.name}')">
+                        <span class="suggestion-code">${s.code}</span> <span>${s.name}</span>
+                    </div>
+                `).join('');
+                suggestionsBox.style.display = 'block';
+            } else { suggestionsBox.style.display = 'none'; }
+        });
+
+        window.addTag = function(code, name) {
+            if (selectedSubjects.some(s => s.code === code)) return;
+            selectedSubjects.push({ code, name });
+            renderTags();
+            subjectInput.value = '';
+            suggestionsBox.style.display = 'none';
+        };
+
+        function renderTags() {
+            selectedTagsContainer.innerHTML = selectedSubjects.map(s => `
+                <div class="tag-badge">${s.code} <span style="cursor:pointer; margin-left:5px;" onclick="removeTag('${s.code}')">&times;</span></div>
+            `).join('');
+            subjectInput.placeholder = selectedSubjects.length > 0 ? "" : "Nhập tên hoặc mã môn...";
+        }
+
+        window.removeTag = function(code) {
+            selectedSubjects = selectedSubjects.filter(s => s.code !== code);
+            renderTags();
+        };
+
+        document.addEventListener('click', (e) => { if (!e.target.closest('.search-group')) suggestionsBox.style.display = 'none'; });
+
+        // MODAL HELPERS
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('d-none');
+            if(modalId === 'successModal' && countdownTimer) clearInterval(countdownTimer);
+        }
+
+        function openConfirm(id) {
+            const btn = document.getElementById(`btn-${id}`);
+            if(btn.classList.contains('btn-disabled')) return;
+            selectedTutor = allTutorsData.find(t => t.id === id);
+            document.getElementById('confirmTutorName').textContent = selectedTutor.name;
+            document.getElementById('confirmModal').classList.remove('d-none');
+        }
+
+        function submitRequest() {
+            closeModal('confirmModal');
+            document.getElementById('successTutorName').textContent = selectedTutor.name;
+            document.getElementById('successModal').classList.remove('d-none');
+
+            let requestedIds = JSON.parse(localStorage.getItem('tutor_requests') || '[]');
+            if (!requestedIds.includes(selectedTutor.id)) {
+                requestedIds.push(selectedTutor.id);
+                localStorage.setItem('tutor_requests', JSON.stringify(requestedIds));
+            }
+
+            const btn = document.getElementById(`btn-${selectedTutor.id}`);
+            if(btn) {
+                btn.textContent = "Đã gửi";
+                btn.className = "btn-disabled";
+                btn.removeAttribute("onclick");
+            }
+
+            let timeLeft = 5;
+            const btnReturn = document.getElementById('btnReturn');
+            btnReturn.textContent = `Quay về (${timeLeft}s)`;
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) closeModal('successModal');
+                else btnReturn.textContent = `Quay về (${timeLeft}s)`;
+            }, 1000);
+        }
+
+        function openProfile(id) {
+            const t = allTutorsData.find(t => t.id === id);
+            document.getElementById('profileName').textContent = t.name;
+            document.getElementById('profileJob').textContent = t.job;
+            document.getElementById('profileRating').textContent = t.rating ? `${t.rating} ⭐` : "Chưa có đánh giá";
+            document.getElementById('profileSubjects').textContent = t.subjects;
+            document.getElementById('profileAvatar').src = 'assets/images/default-avatar.png';
+            /* Thay thế khi có ảnh thật
+            document.getElementById('profileAvatar').src = `assets/images/avatars/${t.id}.jpg`;
+            document.getElementById('profileAvatar').onerror = function() {
+                this.src = 'assets/images/default-avatar.png'; 
+            };
+            */
+            document.getElementById('profileModal').classList.remove('d-none');
+        }
+    </script>
+</body>
+</html>

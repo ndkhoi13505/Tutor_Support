@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký buổi hỗ trợ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/student.css">
+    <style>
+        .col-subject { width: 20%; font-weight: 600; }
+        .col-code { width: 10%; color: #111827; }
+        .col-date { width: 12%; }
+        .col-time { width: 15%; }
+        .col-room { width: 10%; }
+        .col-mode { width: 10%; font-weight: 600; }
+        .col-tutor { width: 18%; }
+        .col-action { width: 10%; text-align: right;}
+        .modal-info-line { margin-bottom: 5px; font-size: 15px; }
+        .modal-label { font-weight: 500; font-style: italic; }
+        .modal-value { color: #3B82F6; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <div class="student-wrapper">
+        <header class="page-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+            
+            <h1 class="page-title">Đăng kí buổi hỗ trợ</h1>
+        </header>
+
+        <div class="filter-bar">
+            <div class="search-group" id="groupDate" onclick="openDateDatepicker()" style="cursor: pointer;">
+                <input type="text" class="search-input" id="dateSearch" placeholder="Chọn ngày..." readonly style="cursor: pointer; background: white;">
+                <span style="color:#9CA3AF; padding-right: 10px; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); pointer-events: none;">📅</span>
+                <span class="clear-icon" onclick="event.stopPropagation(); clearDate()">×</span>
+            </div>
+
+            <div class="search-group" id="groupCode">
+                <input type="text" class="search-input" id="codeReader" placeholder="Nhập mã hoặc tên môn..." autocomplete="off" oninput="toggleClear('groupCode')">
+                <span class="clear-icon" onclick="clearInput('codeReader', 'groupCode')">×</span>
+                <div id="suggestionsBox" class="autocomplete-suggestions"></div>
+            </div>
+
+            <div class="search-group" id="groupTutor">
+                <input type="text" class="search-input" id="tutorSearch" placeholder="Tìm theo tên GV" oninput="toggleClear('groupTutor')">
+                <span class="clear-icon" onclick="clearInput('tutorSearch', 'groupTutor')">×</span>
+            </div>
+            
+            <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
+        </div>
+
+        <div class="tutor-table-container">
+            <table class="tutor-table">
+                <thead>
+                    <tr style="color: #6B7280; font-size: 13px;">
+                        <th class="col-subject">Tên môn học</th>
+                        <th class="col-code">Mã môn học</th>
+                        <th class="col-date">Ngày</th>
+                        <th class="col-time">Thời gian</th>
+                        <th class="col-room">Phòng học</th>
+                        <th class="col-mode">Hình thức</th>
+                        <th class="col-tutor">GV phụ trách</th>
+                        <th class="col-action">Đăng kí</th>
+                    </tr>
+                </thead>
+                <tbody id="session-body"></tbody>
+            </table>
+             <div class="pagination-container" id="pagination"></div>
+        </div>
+    </div>
+
+    <div id="datePickerModal" class="modal-overlay d-none">
+        <div class="calendar-popup">
+            <div class="calendar-nav">
+                <span class="nav-btn" onclick="changeMonth(-1)">&lt;</span>
+                <span id="calendarTitle">Tháng 11 2025</span>
+                <span class="nav-btn" onclick="changeMonth(1)">&gt;</span>
+            </div>
+            <div class="calendar-days-grid" id="calendarGrid"></div>
+            <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+                <button class="btn-cancel" style="background: #F3F4F6; color: #374151; border:none; padding: 6px 12px; border-radius: 4px;" onclick="closeModal('datePickerModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay d-none">
+        <div class="modal-box confirm-modal">
+            <div class="close-icon" onclick="closeModal('confirmModal')">X</div>
+            <h3 class="modal-title" style="font-size: 20px;">Bạn đồng ý đăng kí</h3>
+            <div id="confirmContent" style="margin: 20px 0; text-align: center;"></div>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closeModal('confirmModal')">Hủy</button>
+                <button class="btn-confirm" onclick="submitRegistration()">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal-overlay d-none">
+        <div class="modal-box success-modal">
+            <div class="close-icon" onclick="closeModal('successModal')">X</div>
+            <div class="text-success" style="font-size: 18px;">Gửi đăng kí thành công</div>
+            <div id="successContent" style="margin: 20px 0; text-align: center;"></div>
+            <button class="btn-return" id="btnReturn" onclick="closeModal('successModal')">Quay về (5s)</button>
+        </div>
+    </div>
+
+    <script src="assets/js/student_api.js"></script>
+    
+    <script>
+        let selectedSession = null;
+        let countdownTimer = null;
+        let allSessionsData = [];
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 5;
+
+        // Refs
+        const codeInput = document.getElementById('codeReader');
+        const dateInput = document.getElementById('dateSearch');
+        const tutorInput = document.getElementById('tutorSearch');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+
+        // Calendar State
+        let currentMonth = 10; 
+        let currentYear = 2025;
+        const MIN_DATE = new Date(2025, 10, 1); 
+        const MAX_DATE = new Date(2026, 2, 31); 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        // CLEAR INPUT LOGIC
+        function toggleClear(groupId) {
+            const group = document.getElementById(groupId);
+            const input = group.querySelector('input');
+            if (input.value.trim().length > 0) {
+                group.classList.add('has-text');
+            } else {
+                group.classList.remove('has-text');
+            }
+        }
+
+        function clearInput(inputId, groupId) {
+            const input = document.getElementById(inputId);
+            input.value = '';
+            toggleClear(groupId);
+            handleSearch(); 
+        }
+
+        // SEARCH & RENDER
+        function handleSearch() {
+            currentPage = 1;
+            fetchData();
+        }
+
+        async function fetchData() {
+            const tbody = document.getElementById('session-body');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">Đang tải dữ liệu...</td></tr>';
+
+            const filters = {
+                code: codeInput.value.trim(),
+                date: dateInput.value.trim(),
+                tutor: tutorInput.value.trim()
+            };
+
+            allSessionsData = await StudentApiService.getSessions(filters);
+            renderPage(currentPage);
+        }
+
+        function renderPage(page) {
+            currentPage = page;
+            const tbody = document.getElementById('session-body');
+            tbody.innerHTML = '';
+
+            const start = (page - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageData = allSessionsData.slice(start, end);
+
+            if(pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">Không tìm thấy lịch học phù hợp</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const bookedIds = JSON.parse(localStorage.getItem('booked_sessions') || '[]');
+
+            pageData.forEach(s => {
+                const tr = document.createElement('tr');
+                
+                // Button State
+                let btnHtml = '';
+                let isBooked = s.status === 'booked' || bookedIds.includes(s.id);
+
+                if (s.isExpired) {
+                    // buổi học đã qua -> disable và hiện text khác
+                    btnHtml = `<button class="btn-disabled" style="background-color: #E5E7EB; color: #9CA3AF !important;">Đã kết thúc</button>`;
+                    tr.style.opacity = "0.6"; 
+                } else if (isBooked) {
+                    btnHtml = `<button class="btn-disabled">Đã đăng kí</button>`;
+                } else {
+                    btnHtml = `<button class="btn-pink" onclick="openConfirm(${s.id})">Đăng kí</button>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="col-subject">${s.subject}</td>
+                    <td class="col-code">${s.code}</td>
+                    <td class="col-date">${s.date}</td>
+                    <td class="col-time">${s.time}</td>
+                    <td class="col-room">${s.room}</td>
+                    <td class="col-mode">${s.mode}</td>
+                    <td class="col-tutor">${s.tutor}</td>
+                    <td class="col-action">${btnHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(allSessionsData.length / ITEMS_PER_PAGE);
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+            let html = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lt; Prev</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next &gt;</button>`;
+            container.innerHTML = html;
+        }
+
+        window.changePage = function(p) { renderPage(p); }
+
+        // CALENDAR LOGIC
+        function openDateDatepicker() {
+            renderCalendar(currentMonth, currentYear);
+            document.getElementById('datePickerModal').classList.remove('d-none');
+        }
+
+        function changeMonth(step) {
+            let newDate = new Date(currentYear, currentMonth + step, 1);
+            if (newDate < MIN_DATE || newDate > MAX_DATE) return;
+            currentMonth = newDate.getMonth();
+            currentYear = newDate.getFullYear();
+            renderCalendar(currentMonth, currentYear);
+        }
+
+        function renderCalendar(month, year) {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            grid.innerHTML = '';
+            
+            const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            days.forEach(d => grid.innerHTML += `<div class="day-name">${d}</div>`);
+            title.textContent = `Tháng ${month + 1} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="day-cell empty"></div>`;
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                let dayStr = i.toString().padStart(2, '0');
+                let monthStr = (month + 1).toString().padStart(2, '0');
+                let dateStr = `${dayStr}/${monthStr}/${year}`;
+                let isSelected = dateInput.value === dateStr;
+                grid.innerHTML += `<div class="day-cell ${isSelected ? 'selected' : ''}" onclick="selectDate('${dateStr}')">${i}</div>`;
+            }
+        }
+
+        function selectDate(dateStr) {
+            dateInput.value = dateStr;
+            toggleClear('groupDate'); 
+            closeModal('datePickerModal');
+            handleSearch();
+        }
+
+        function clearDate() {
+            dateInput.value = '';
+            toggleClear('groupDate');
+            closeModal('datePickerModal');
+            handleSearch();
+        }
+
+        // AUTOCOMPLETE
+        codeInput.addEventListener('input', async (e) => {
+            toggleClear('groupCode'); 
+            const k = e.target.value;
+            if (k.length < 1) { suggestionsBox.style.display = 'none'; return; }
+            const r = await StudentApiService.searchSubjects(k);
+            suggestionsBox.innerHTML = r.length > 0 ? r.map(s => `<div class="suggestion-item" onclick="selectSubject('${s.code}')"><span class="suggestion-code">${s.code}</span><span>${s.name}</span></div>`).join('') : '';
+            suggestionsBox.style.display = r.length > 0 ? 'block' : 'none';
+        });
+        function selectSubject(c) { 
+            codeInput.value = c; 
+            toggleClear('groupCode');
+            suggestionsBox.style.display = 'none'; 
+            handleSearch(); 
+        }
+        document.addEventListener('click', (e) => { if (!e.target.closest('.search-group')) suggestionsBox.style.display = 'none'; });
+
+        // MODAL & REGISTRATION
+        function closeModal(id) { document.getElementById(id).classList.add('d-none'); }
+        function openConfirm(id) {
+            selectedSession = allSessionsData.find(s => s.id === id);
+            const content = `<div class="modal-info-line"><span class="modal-label">Môn:</span> <span class="modal-value">${selectedSession.subject}</span></div><div class="modal-info-line"><span class="modal-label">Ngày:</span> <span class="modal-value">${selectedSession.date}</span></div>`;
+            document.getElementById('confirmContent').innerHTML = content;
+            document.getElementById('confirmModal').classList.remove('d-none');
+        }
+        async function submitRegistration() {
+            closeModal('confirmModal');
+            await StudentApiService.registerSession(selectedSession.id);
+            let booked = JSON.parse(localStorage.getItem('booked_sessions') || '[]');
+            if(!booked.includes(selectedSession.id)) { booked.push(selectedSession.id); localStorage.setItem('booked_sessions', JSON.stringify(booked)); }
+            fetchData();
+            document.getElementById('successContent').innerHTML = `Đăng ký thành công ${selectedSession.code}!`;
+            document.getElementById('successModal').classList.remove('d-none');
+            let t = 5; const btn = document.getElementById('btnReturn');
+            if(countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => { t--; if(t<=0) closeModal('successModal'); else btn.textContent = `Quay về (${t}s)`; }, 1000);
+        }
+    </script>
+</body>
+</html>
