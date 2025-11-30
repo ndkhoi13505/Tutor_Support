@@ -195,7 +195,7 @@ async function saveChanges() {
 
     } catch (error) {
         console.error("Failed to save changes:", error);
-        alert("Có lỗi xảy ra khi lưu thay đổi.");
+        alert(error.message || "Có lỗi xảy ra khi lưu thay đổi.");
     }
 }
 

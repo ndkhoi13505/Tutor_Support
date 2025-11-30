@@ -40,6 +40,19 @@ const ApiService = {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 const sessions = this._getData();
+
+                // Check for conflict (Same Date & Time)
+                const isConflict = sessions.some(s => 
+                    s.id != payload.id && 
+                    s.date === payload.date && 
+                    s.time === payload.time
+                );
+
+                if (isConflict) {
+                    reject(new Error("Xung đột lịch trình: Đã có buổi học khác vào thời gian này!"));
+                    return;
+                }
+
                 const index = sessions.findIndex(s => s.id == payload.id);
                 
                 if (index !== -1) {
