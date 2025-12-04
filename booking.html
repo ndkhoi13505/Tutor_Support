@@ -6,6 +6,8 @@
     <title>Đăng ký buổi hỗ trợ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/student.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .col-subject { width: 20%; font-weight: 600; }
         .col-code { width: 10%; color: #111827; }
@@ -21,54 +23,51 @@
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
+        <div class="student-wrapper">
+            <header class="page-header">
+                <h1 class="page-title">Đăng kí buổi hỗ trợ</h1>
+            </header>
 
-    <div class="student-wrapper">
-        <header class="page-header">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 12h18M3 6h18M3 18h18" />
-            </svg>
-            
-            <h1 class="page-title">Đăng kí buổi hỗ trợ</h1>
-        </header>
+            <div class="filter-bar">
+                <div class="search-group" id="groupDate" onclick="openDateDatepicker()" style="cursor: pointer;">
+                    <input type="text" class="search-input" id="dateSearch" placeholder="Chọn ngày..." readonly style="cursor: pointer; background: white;">
+                    <span style="color:#9CA3AF; padding-right: 10px; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); pointer-events: none;">📅</span>
+                    <span class="clear-icon" onclick="event.stopPropagation(); clearDate()">×</span>
+                </div>
 
-        <div class="filter-bar">
-            <div class="search-group" id="groupDate" onclick="openDateDatepicker()" style="cursor: pointer;">
-                <input type="text" class="search-input" id="dateSearch" placeholder="Chọn ngày..." readonly style="cursor: pointer; background: white;">
-                <span style="color:#9CA3AF; padding-right: 10px; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); pointer-events: none;">📅</span>
-                <span class="clear-icon" onclick="event.stopPropagation(); clearDate()">×</span>
+                <div class="search-group" id="groupCode">
+                    <input type="text" class="search-input" id="codeReader" placeholder="Nhập mã hoặc tên môn..." autocomplete="off" oninput="toggleClear('groupCode')">
+                    <span class="clear-icon" onclick="clearInput('codeReader', 'groupCode')">×</span>
+                    <div id="suggestionsBox" class="autocomplete-suggestions"></div>
+                </div>
+
+                <div class="search-group" id="groupTutor">
+                    <input type="text" class="search-input" id="tutorSearch" placeholder="Tìm theo tên GV" oninput="toggleClear('groupTutor')">
+                    <span class="clear-icon" onclick="clearInput('tutorSearch', 'groupTutor')">×</span>
+                </div>
+                
+                <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
             </div>
 
-            <div class="search-group" id="groupCode">
-                <input type="text" class="search-input" id="codeReader" placeholder="Nhập mã hoặc tên môn..." autocomplete="off" oninput="toggleClear('groupCode')">
-                <span class="clear-icon" onclick="clearInput('codeReader', 'groupCode')">×</span>
-                <div id="suggestionsBox" class="autocomplete-suggestions"></div>
+            <div class="tutor-table-container">
+                <table class="tutor-table">
+                    <thead>
+                        <tr style="color: #6B7280; font-size: 13px;">
+                            <th class="col-subject">Tên môn học</th>
+                            <th class="col-code">Mã môn học</th>
+                            <th class="col-date">Ngày</th>
+                            <th class="col-time">Thời gian</th>
+                            <th class="col-room">Phòng học</th>
+                            <th class="col-mode">Hình thức</th>
+                            <th class="col-tutor">GV phụ trách</th>
+                            <th class="col-action">Đăng kí</th>
+                        </tr>
+                    </thead>
+                    <tbody id="session-body"></tbody>
+                </table>
+                <div class="pagination-container" id="pagination"></div>
             </div>
-
-            <div class="search-group" id="groupTutor">
-                <input type="text" class="search-input" id="tutorSearch" placeholder="Tìm theo tên GV" oninput="toggleClear('groupTutor')">
-                <span class="clear-icon" onclick="clearInput('tutorSearch', 'groupTutor')">×</span>
-            </div>
-            
-            <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
-        </div>
-
-        <div class="tutor-table-container">
-            <table class="tutor-table">
-                <thead>
-                    <tr style="color: #6B7280; font-size: 13px;">
-                        <th class="col-subject">Tên môn học</th>
-                        <th class="col-code">Mã môn học</th>
-                        <th class="col-date">Ngày</th>
-                        <th class="col-time">Thời gian</th>
-                        <th class="col-room">Phòng học</th>
-                        <th class="col-mode">Hình thức</th>
-                        <th class="col-tutor">GV phụ trách</th>
-                        <th class="col-action">Đăng kí</th>
-                    </tr>
-                </thead>
-                <tbody id="session-body"></tbody>
-            </table>
-             <div class="pagination-container" id="pagination"></div>
         </div>
     </div>
 
@@ -108,6 +107,7 @@
     </div>
 
     <script src="assets/js/student_api.js"></script>
+    <script src="assets/js/navigation.js"></script>
     
     <script>
         let selectedSession = null;

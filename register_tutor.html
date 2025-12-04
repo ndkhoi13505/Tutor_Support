@@ -6,6 +6,8 @@
     <title>Tìm kiếm Tutor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/student.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Badge điểm AI */
         .score-badge { padding: 4px 8px; border-radius: 12px; font-weight: 700; font-size: 13px; }
@@ -14,76 +16,74 @@
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
+        <div class="student-wrapper">
+            <header class="page-header">
+                <h1 class="page-title">Tìm kiếm & Ghép cặp Tutor</h1>
+            </header>
 
-    <div class="student-wrapper">
-        <header class="page-header">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 12h18M3 6h18M3 18h18" />
-            </svg>
-            <h1 class="page-title">Tìm kiếm & Ghép cặp Tutor</h1>
-        </header>
+            <div class="filter-bar">
+                <div style="font-weight: 500;">Môn học:</div>
+                
+                <div class="search-group">
+                    <div id="selectedTags" style="display: flex; gap: 5px;"></div>
+                    <input type="text" class="search-input" id="subjectInput" placeholder="Nhập tên hoặc mã môn..." autocomplete="off">
+                    <div id="suggestionsBox" class="autocomplete-suggestions"></div>
+                </div>
+                
+                <div class="filter-options">
+                    <div onclick="openSchedule()" style="cursor: pointer; display: flex; align-items: center;">
+                        Chọn lịch rảnh: 
+                        <span style="margin-left:5px;">📅</span>
+                        <span id="displaySchedule" style="font-weight: 600; color: #3B82F6; margin-left: 5px; font-size: 13px;">Chưa chọn</span>
+                    </div>
 
-        <div class="filter-bar">
-            <div style="font-weight: 500;">Môn học:</div>
-            
-            <div class="search-group">
-                <div id="selectedTags" style="display: flex; gap: 5px;"></div>
-                <input type="text" class="search-input" id="subjectInput" placeholder="Nhập tên hoặc mã môn..." autocomplete="off">
-                <div id="suggestionsBox" class="autocomplete-suggestions"></div>
-            </div>
-            
-            <div class="filter-options">
-                <div onclick="openSchedule()" style="cursor: pointer; display: flex; align-items: center;">
-                    Chọn lịch rảnh: 
-                    <span style="margin-left:5px;">📅</span>
-                    <span id="displaySchedule" style="font-weight: 600; color: #3B82F6; margin-left: 5px; font-size: 13px;">Chưa chọn</span>
+                    <div style="border-left: 1px solid #E5E7EB; height: 20px; margin: 0 10px;"></div>
+
+                    <div>Hình thức: 
+                        <input type="radio" name="mode" id="all" value="all" checked style="margin-left: 5px;"> <label for="all">Tất cả</label>
+                        <input type="radio" name="mode" id="offline" value="Offline" style="margin-left: 5px;"> <label for="offline">Offline</label>
+                        <input type="radio" name="mode" id="online" value="Online" style="margin-left: 5px;"> <label for="online">Online</label>
+                    </div>
                 </div>
 
-                <div style="border-left: 1px solid #E5E7EB; height: 20px; margin: 0 10px;"></div>
+                <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
+            </div>
 
-                <div>Hình thức: 
-                    <input type="radio" name="mode" id="all" value="all" checked style="margin-left: 5px;"> <label for="all">Tất cả</label>
-                    <input type="radio" name="mode" id="offline" value="Offline" style="margin-left: 5px;"> <label for="offline">Offline</label>
-                    <input type="radio" name="mode" id="online" value="Online" style="margin-left: 5px;"> <label for="online">Online</label>
+            <div id="emptyState" class="empty-state-container">
+                <div class="empty-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="empty-title">Bắt đầu tìm kiếm Tutor phù hợp</h3>
+                <p class="empty-desc">
+                    Chọn môn học, lịch rảnh trong tuần và hình thức học. Hệ thống AI sẽ phân tích và kết nối bạn với Tutor phù hợp nhất.
+                </p>
+                <div class="quick-tags-container">
+                    <button class="chip-btn" onclick="quickSelect('MT1003', 'Giải tích 1')">Giải tích 1</button>
+                    <button class="chip-btn" onclick="quickSelect('PH1003', 'Vật lý 1')">Vật lý 1</button>
+                    <button class="chip-btn" onclick="quickSelect('CO2003', 'Cấu trúc dữ liệu')">Cấu trúc dữ liệu</button>
+                    <button class="chip-btn" onclick="quickSelect('CO3093', 'Mạng máy tính')">Mạng máy tính</button>
                 </div>
             </div>
 
-            <button class="btn-search" onclick="handleSearch()">Tìm kiếm</button>
-        </div>
-
-        <div id="emptyState" class="empty-state-container">
-            <div class="empty-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+            <div id="resultSection" class="tutor-table-container d-none">
+                <table class="tutor-table">
+                    <thead>
+                        <tr>
+                            <th>Tên Tutor</th>
+                            <th>Độ phù hợp (AI)</th>
+                            <th>Số buổi dạy</th>
+                            <th>Đánh giá</th>
+                            <th>Chi tiết</th>
+                            <th>Yêu cầu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tutor-list-body"></tbody>
+                </table>
+                <div class="pagination-container" id="pagination"></div>
             </div>
-            <h3 class="empty-title">Bắt đầu tìm kiếm Tutor phù hợp</h3>
-            <p class="empty-desc">
-                Chọn môn học, lịch rảnh trong tuần và hình thức học. Hệ thống AI sẽ phân tích và kết nối bạn với Tutor phù hợp nhất.
-            </p>
-            <div class="quick-tags-container">
-                <button class="chip-btn" onclick="quickSelect('MT1003', 'Giải tích 1')">Giải tích 1</button>
-                <button class="chip-btn" onclick="quickSelect('PH1003', 'Vật lý 1')">Vật lý 1</button>
-                <button class="chip-btn" onclick="quickSelect('CO2003', 'Cấu trúc dữ liệu')">Cấu trúc dữ liệu</button>
-                <button class="chip-btn" onclick="quickSelect('CO3093', 'Mạng máy tính')">Mạng máy tính</button>
-            </div>
-        </div>
-
-        <div id="resultSection" class="tutor-table-container d-none">
-            <table class="tutor-table">
-                <thead>
-                    <tr>
-                        <th>Tên Tutor</th>
-                        <th>Độ phù hợp (AI)</th>
-                        <th>Số buổi dạy</th>
-                        <th>Đánh giá</th>
-                        <th>Chi tiết</th>
-                        <th>Yêu cầu</th>
-                    </tr>
-                </thead>
-                <tbody id="tutor-list-body"></tbody>
-            </table>
-            <div class="pagination-container" id="pagination"></div>
         </div>
     </div>
 
@@ -174,6 +174,7 @@
     </div>
 
     <script src="assets/js/student_api.js"></script>
+    <script src="assets/js/navigation.js"></script>
 
     <script>
         // GLOBAL STATE
